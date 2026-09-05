@@ -112,4 +112,21 @@ describe('Mcp Service', () => {
       openWorldHint: false,
     });
   });
+
+  it('advertises the customer output schema', async () => {
+    const result = await client.listTools();
+
+    const tool = result.tools.find((tool) => tool.name === 'get_customer');
+
+    expect(tool?.outputSchema).toMatchObject({
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        email: { type: 'string' },
+        status: { type: 'string' },
+      },
+      required: expect.arrayContaining(['id', 'name', 'email', 'status']),
+    });
+  });
 });
