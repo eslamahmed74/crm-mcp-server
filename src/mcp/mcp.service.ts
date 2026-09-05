@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CrmApiService } from '../crm-api/crm-api.service.js';
 import { McpServer } from '@modelcontextprotocol/server';
-import z from 'zod';
+import z, { email } from 'zod';
 
 @Injectable()
 export class McpService {
@@ -23,11 +23,28 @@ export class McpService {
         }),
       },
 
-      async () => ({
-        content: [
-          { type: 'text', text: 'get_customer is not implemented yet ' },
-        ],
-      }),
+      async ({ customerId }) => {
+        const customer = await this.crmApiService.getCustomer(customerId);
+
+        if (!customer) throw new Error('customer was not found');
+
+        const output = {
+          id: customer.id,
+          name: customer.name,
+          email: customer.email,
+          status: customer.status,
+        };
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(output),
+            },
+          ],
+          structuredContent: output,
+        };
+      },
     );
 
     return server;

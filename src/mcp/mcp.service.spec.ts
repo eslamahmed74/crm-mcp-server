@@ -7,10 +7,21 @@ import { CrmApiService } from '../crm-api/crm-api.service.js';
 describe('Mcp Service', () => {
   let client: Client;
   let server: McpServer;
+  const customerId = '550e8400-e29b-41d4-a716-446655440000';
+  const customer = {
+    id: customerId,
+    name: 'Ahmed Hassan',
+    email: 'ahmed@example.com',
+    status: 'active',
+  };
+
+  let crmApiService: {
+    getCustomer: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
-    const crmApiService = {
-      getCustomer: vi.fn,
+    crmApiService = {
+      getCustomer: vi.fn().mockResolvedValue(customer),
     };
 
     const service = new McpService(crmApiService as unknown as CrmApiService);
@@ -32,8 +43,8 @@ describe('Mcp Service', () => {
   });
 
   afterEach(async () => {
-    server.close();
     client.close();
+    server.close();
   });
 
   it('advertise the get_customer tool', async () => {
@@ -41,6 +52,21 @@ describe('Mcp Service', () => {
 
     const toolNames = result.tools.map((tool) => tool.name);
 
-    expect(toolNames).toContain("get_customer")
+    expect(toolNames).toContain('get_customer');
+  });
+
+  it('returns structured customer data for a vaild id', async () => {
+    const result = await client.callTool({
+      name: 'get_customer',
+      arguments: {
+        customerId,
+      },
+    });
+
+    expect(crmApiService.getCustomer).toHaveBeenCalledWith(customerId);
+
+    expect(result.isError).not.toBe(true);
+
+    expect(result.structuredContent).toEqual(customer);
   });
 });
