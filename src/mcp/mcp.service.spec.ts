@@ -55,7 +55,7 @@ describe('Mcp Service', () => {
     expect(toolNames).toContain('get_customer');
   });
 
-  it('returns structured customer data for a vaild id', async () => {
+  it('returns structured customer data for a valid id', async () => {
     const result = await client.callTool({
       name: 'get_customer',
       arguments: {
@@ -68,5 +68,25 @@ describe('Mcp Service', () => {
     expect(result.isError).not.toBe(true);
 
     expect(result.structuredContent).toEqual(customer);
+  });
+
+  it('returns a safe tool error when the customer does not exist', async () => {
+    crmApiService.getCustomer.mockResolvedValueOnce(null);
+
+    const result = await client.callTool({
+      name: 'get_customer',
+      arguments: {
+        customerId,
+      },
+    });
+
+    expect(result.isError).toBe(true);
+
+    expect(result.content).toEqual([
+      {
+        type: 'text',
+        text: `customer ${customerId} not found.`,
+      },
+    ]);
   });
 });

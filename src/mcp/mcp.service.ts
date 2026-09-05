@@ -26,7 +26,7 @@ export class McpService {
       async ({ customerId }) => {
         const customer = await this.crmApiService.getCustomer(customerId);
 
-        if (!customer) throw new Error('customer was not found');
+        if (!customer) throw new Error(`customer ${customerId} not found.`);
 
         const output = {
           id: customer.id,
