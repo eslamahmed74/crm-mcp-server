@@ -89,4 +89,14 @@ describe('Mcp Service', () => {
       },
     ]);
   });
+
+  it('rejects an invalid UUID before calling the CRM API', async () => {
+    const result = await client.callTool({
+      name: 'get_customer',
+      arguments: { customerId: 'not a uuid' },
+    });
+
+    expect(result.isError).toBe(true);
+    expect(crmApiService.getCustomer).not.toHaveBeenCalled();
+  });
 });
