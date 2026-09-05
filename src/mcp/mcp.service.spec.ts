@@ -99,4 +99,17 @@ describe('Mcp Service', () => {
     expect(result.isError).toBe(true);
     expect(crmApiService.getCustomer).not.toHaveBeenCalled();
   });
+
+  it('advertises get_customer as read only tool', async () => {
+    const result = await client.listTools();
+
+    const tool = result.tools.find((tool) => tool.name === 'get_customer');
+
+    expect(tool?.annotations).toEqual({
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false,
+    });
+  });
 });

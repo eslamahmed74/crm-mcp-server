@@ -21,6 +21,12 @@ export class McpService {
         inputSchema: z.object({
           customerId: z.string().uuid(),
         }),
+        annotations: {
+          readOnlyHint: true,
+          destructiveHint: false,
+          idempotentHint: true,
+          openWorldHint: false,
+        },
       },
 
       async ({ customerId }) => {
